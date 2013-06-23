@@ -1,0 +1,105 @@
+Unit NFS_VAR_Unit;
+{ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
+ บ                                                                          บ
+ บ     Variablen & Typen Unit fr NFS Projekt                               บ
+ บ                                                                          บ
+ บ     Version 1 am 19.06.2006 - zulest genderd  20.06.2006                บ
+ บ                                                                          บ
+ ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ}
+Interface
+USES uString;
+
+         Type
+             TPathRec=Record
+             BootPath         :String; // Path where program was bootet from
+             BootDrive        :Char;   // Boot Drive
+             LanguageFile     :String; // Path&Filename of current loaded language file
+             MountExe         :String;   // Path zum Mount.exe Program
+             UMountEXE        :String;   // Path zum Umount.exe Programm
+             NFS300IFS        :String;   // Path zum NFS300.IFS Treiber
+             MPTNBIN          :String;   // Path zum MPTN\BIN Verzeichniss
+             RPCInfo          :String;
+         End;
+
+         Type
+              IPError=record
+              Valid:Boolean;
+              MissingPoint:Boolean;
+              MissingNumber:Boolean;
+              PointOverflow:Boolean;
+              NumberofPoints:Byte;
+              InValidSigns:Boolean;
+              InvalidNumber:Boolean;
+              End;
+
+         Type
+            NFS_Server_REC=Record
+            IPAdress:String[15];
+            UserName:String[50];
+            Password:String[50];
+            Comment:String[30];
+            DriveLetter:Char;
+            MountDir:String;
+            GID:    String[100];
+            UID    :String[100];
+            FileBit:String[7];    // Berechtigungsbit fr Dateierstellung
+            DirBit :String[7];    // Berechtigungsbit fr Verzeichniss einstellung
+            UMask  :String[7];    // BIT fr UserMaske
+            UMaskUse:Boolean;     // True wenn verwendet werden soll , false wenn nicht
+            cbRespectCase:Boolean;   // Wenn True Parameter -RC verwenden
+            cblowercase:Boolean;     // Wenn True Parameter -CL verwenden
+            cbCaseSensetiv:Boolean; // wenn True Parameter -CS verwenden
+            End;
+
+            VAR
+               AdressBookData:NFS_Server_REC;                   // Adressen Record Variable
+               AdressBookFileName:String;                       // Name der NFS Adressen Buches
+               Default_IP_Error:IPError;
+               NFSDriveList:TStringList;                         // Liste der derzeit im system befindlichen laufwerke
+               FreeDriveList:TStringList;                       // Liste der noch freien Laufwerksbuchstaben zum mounten
+               NFSDriveList_Info:TStringlist;                   // Informationen (freigegebe Ordner) auf dem NFS Laufwerk
+
+               Output_RPCInfo:TStringList;                        // Enthlt die ausgabe des RPCInfo Kommandos;
+               Output_Mount:TStringList;                          // Enthlt die ausgabe des Mount Kommandos
+               Output_UMount:TStringList;                         // Enthlt die ausgabe des UMount Kommandos
+
+               RPCInfo_PCNFSD : Boolean;                        // True wenn der PCNFSD auf dem entfernten Server luft (anmledung ber BenutzerName+Password) / FALSE wenn nicht (Anmeldung ber User ID und GroupID);
+               RPCInfo_nlockmgr:Boolean;
+               RPCInfo_Status:Boolean;
+
+               PathRec:TPathRec;
+
+
+            CONST
+                EF_IPNum                   =0;
+                EF_Subnet                  =1;
+                EF_Host                    =2;
+                Data_Size                   =637; //406;
+                maxdatarecsize=data_size;     // Maximale Recordgr”แe festlegen (ToolBox)
+                maxkeylen=                    25;
+                pagesize=60;                  // ??
+                order=30;                     // ??
+                pagestacksize=25;             // ??
+                maxheight=4;                  // ??
+                UserSection                   = 'NFS-CONFIG-Settings';      // Section Eintrag in OS2 User INI
+                userSectionLang               = 'NFS-CONFIG-Language';    // Section fr Sprachefilename
+                AdvancedSection               = 'NFS-Advanced';           // Sektion fr erweiterte Einstellungen
+                Info_NFSD=0;
+                INFO_PCNFSD=1;
+                INFO_LOCK=2;
+                INFO_STATUS=3;
+                Info_Mount=4;
+                Info_Error=5;
+                PROG_DLLVersion=7;             // Version der DLL
+                // Hilfe Konstanzen
+                HLP_AdressBook                 =10;
+
+Implementation
+              Begin
+              AdressBookFileName:='NFSBOOK.DAT';
+              PathRec.MountExe:='Mount.exe';
+              PathRec.UMountEXE:='UMount.EXE';
+              PathRec.NFS300IFS:='NFS300.IFS';
+              PathRec.RPCInfo:='RPCINFO.EXE';
+              PathRec.BootPath:=Paramstr(0);
+              End.

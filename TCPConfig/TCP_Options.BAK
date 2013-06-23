@@ -1,0 +1,318 @@
+Unit TCP_Options;
+
+Interface
+
+Uses
+  Classes, Forms, Graphics, TabCtrls, Buttons, ExtCtrls, StdCtrls, ListView,
+  Spin,ustring,sysutils,Messages,Dialogs,tCP_Unit_Exceptions;
+
+Type
+  TProgrammSettingsNotebook = Class (TDIalog)
+    TabbedNotebook1: TTabbedNotebook;
+    Okbutton: TButton;
+    CancelButton: TButton;
+    Label3: TLabel;
+    EditProfilePath: TEdit;
+    ButtonProfilePath: TButton;
+    Label4: TLabel;
+    EditETC: TEdit;
+    Label7: TLabel;
+    EditTCPIPBinPath: TEdit;
+    Label8: TLabel;
+    EditIBMCOMPATH: TEdit;
+    Label5: TLabel;
+    EditBIN: TEdit;
+    CheckBoxDOSWin: TCheckBox;
+    ButtonBINPath: TButton;
+    Label9: TLabel;
+    SpinLogoDelay: TSpinEdit;
+    Label2: TLabel;
+    SpinProfile: TSpinEdit;
+    Label33: TLabel;
+    SpinBackup: TSpinEdit;
+    ButtonBackupPath: TButton;
+    GrpB_Splash: TGroupBox;
+    cbProgLogo: TCheckBox;
+    GrpB_Autostart: TGroupBox;
+    cbAutostart: TCheckBox;
+    RadioSettingsConfigLevel: TGroupBox;
+    RadioBasic: TRadioButton;
+    RadioFull: TRadioButton;
+    lbLanguageHelp: TListBox;
+    RadioGroupLanguage: TRadioGroup;
+    Label6: TLabel;
+    EditBackup: TEdit;
+    Procedure ButtonProfilePathOnClick (Sender: TObject);
+    Procedure ButtonBackupPathOnClick (Sender: TObject);
+    Procedure CancelButtonOnClick (Sender: TObject);
+    Procedure RadioGroupLanguageOnClick (Sender: TObject);
+    Procedure ButtonBINPathOnClick (Sender: TObject);
+    Procedure CheckBoxDOSWinOnClick (Sender: TObject);
+    Procedure EditDosDNSPathOnClick (Sender: TObject);
+    Procedure RadioSettingsConfigLevelOnClick (Sender: TObject);
+    Procedure OkbuttonOnClick (Sender: TObject);
+    Procedure RadioGroupProfileOnSetupShow (Sender: TObject);
+    Procedure ProgrammSettingsNotebookOnSetupShow (Sender: TObject);
+  Private
+    {Private Deklarationen hier einfÅgen}
+  Function LoadNLSMenu(Section,Ident:String):String;
+  Public
+    {ôffentliche Deklarationen hier einfÅgen}
+  End;
+
+Var
+  ProgrammSettingsNotebook: TProgrammSettingsNotebook;
+
+USES DOS,TCP_LanguageUnit,TCP_VAR_Unit,TCPUtilityUnit,MyMessageBox,DirChangeDlg,TCP_NewINIFile,TCP_FinalNoteDialog;
+
+Implementation
+{$R TCP_Options}
+
+VAR
+   LangINIFile:TNewAsciiIniFile;
+   NLS_Caption:TStringList;
+   OLD_ProgramSettings:TProgramSettings;
+   OLDProgramLevel:Byte;
+
+Procedure FindNLSFiles;
+     VAR
+        DummyFile:TNewAscIIIniFile;
+        //S:TStringlist;
+        DirInfo:Sysutils.TSearchRec;
+        LangName:String;
+     Begin
+         //S:=TStringlist.Create;
+         DOSError:=SYSUTILS.FindFirst('TCP*.NLS',anyfile,DirInfo);
+         While DoSError=0 do
+         Begin
+         ProgrammSettingsNotebook.lbLanguageHelp.items.add(DirInfo.Name);
+         //ProgrammSettingsNotebook.RadioGroupLanguage.items.add(DirInfo.Name);
+         DummyFile.Create(DirInfo.Name);
+         IF not DummyFile.ReadString('TCP_ProgramSettingsNotebook','Language',LangName) then
+         Begin
+              MyErrorBox(DummyFile.ErrorString);
+              Halt;
+         End
+            else ProgrammSettingsNotebook.RadioGroupLanguage.items.add(LangName);
+         DummyFile.Destroy;
+         DOSERROR:=Sysutils.FindNext(DirInfo);
+         End;
+         Sysutils.FIndCLose(DIrInfo);
+     End;
+
+
+
+
+Procedure TProgrammSettingsNotebook.ButtonProfilePathOnClick (Sender: TObject);
+Begin
+     DirDialog.Create;
+     IF DirDialog.Execute Then EditProfilePath.Text:=DirDialog.Directory;
+     DirDialog.Destroy;
+End;
+
+Procedure TProgrammSettingsNotebook.ButtonBackupPathOnClick (Sender: TObject);
+Begin
+      DirDialog.Create;
+     IF DirDialog.Execute Then EditBackup.Text:=DirDialog.Directory;
+     DirDialog.Destroy;
+End;
+
+Procedure TProgrammSettingsNotebook.CancelButtonOnClick (Sender: TObject);
+Begin
+     //ProgramSettings:=Old_ProgramSettings;
+End;
+
+Function TProgrammSettingsNotebook.LoadNLSMenu(Section,Ident:String):String;
+Begin
+     IF not LangIniFile.ReadString(Section,Ident,Result) Then
+     Begin
+          MyErrorBox(LangIniFile.ErrorString);
+          Halt
+     End;
+End;
+
+
+Procedure TProgrammSettingsNotebook.RadioGroupLanguageOnClick (Sender: TObject);
+VAr S:String;
+Begin
+
+     //NLS_Caption:=TStringList.Create;
+
+     LangIniFile.Create(lbLanguageHelp.Items[RadioGroupLanguage.ItemIndex]);
+     PathRec.LanguageFile:=lbLanguageHelp.Items[RadioGroupLanguage.ItemIndex];
+     S:='TCP_ProgramSettingsNotebook';
+     // Load the Caption of the notebook
+
+        Caption:=LoadNlsMenu(S,'Caption');
+        TabbedNotebook1.Pages.Strings[0]:=LoadNlsMenu(S,'TAP#0');
+        TabbedNotebook1.Pages.Strings[1]:=LoadNlsMenu(S,'TAP#1');
+        TabbedNotebook1.Pages.Strings[2]:=LoadNlsMenu(S,'TAP#3');
+        TabbedNotebook1.Pages.Strings[3]:=LoadNlsMenu(S,'TAP#4');
+        TabbedNotebook1.Pages.Strings[4]:=LoadNlsMenu(S,'TAP#5');
+        TabbedNotebook1.Pages.Strings[5]:=LoadNlsMenu(S,'TAP#6');
+        {TabbedNotebook1.Pages.Strings[6]:=LoadNlsMenu(S,'TAP#6');}
+        RadioGroupLanguage.Caption:=LoadNlsMenu(S,'Radio_Lang');
+        {RadioSettingsConfigLevel.Caption:=LoadNlsMenu(S,'Radio_UCap');
+        RadioGroupProfile.Caption:=LoadNlsMenu(S,'Radio_Profile');}
+        //Label1.Caption:=LoadNlsMenu(S,'Label#1');
+        Label3.Caption:=LoadNlsMenu(S,'Label#3');
+        Label4.Caption:=LoadNlsMenu(S,'Label#4');
+        Label5.Caption:=LoadNlsMenu(S,'Label#5');
+        Label6.Caption:=LoadNlsMenu(S,'Label#6');
+        Label7.Caption:=LoadNlsMenu(S,'Label#7');
+        Label8.Caption:=LoadNlsMenu(S,'Label#8');
+        GrpB_Splash.Caption:=LoadNLSMenU(S,'GrpB_Splash');
+        cbProgLogo.Caption:=LoadNLSMenu(S,'cbProgLogo');
+        CheckBoxDOSWin.Caption:=LoadNlsMenu(S,'CheckBoxDos');
+        RadioBasic.Caption:=LoadNlsMenu(S,'Radio_Basic');
+        RadioFull.Caption:=LoadNlsMenu(S,'Radio_Advan');
+        {RadioGroupProfile.Items[0]:=LoadNlsMenu(S,'Profile_Load');
+        RadioGroupProfile.Items[1]:=LoadNlsMenu(S,'Profile_Save');}
+        OkButton.Caption:=LoadNlsMenu(S,'OK_Button');
+        CancelButton.Caption:=LoadNlsMenu(S,'Cancel_Button');
+        //HelpButton.Caption:=LoadNlsMenu(S,'Help_Button');
+        GrpB_Autostart.Caption:=LoadNlsMenu(S,'GrpB_Auto');
+        cbAutostart.Caption:=LoadNlsMenu(S,'cbAutostart');
+
+     LangIniFile.Destroy;
+End;
+
+Procedure TProgrammSettingsNotebook.ButtonBINPathOnClick (Sender: TObject);
+Begin
+    DirDialog.Create;
+     IF DirDialog.Execute Then EditBin.Text:=DirDialog.Directory;
+     DirDialog.Destroy;
+End;
+
+
+Procedure TProgrammSettingsNotebook.CheckBoxDOSWinOnClick (Sender: TObject);
+Begin
+End;
+
+
+Procedure TProgrammSettingsNotebook.EditDosDNSPathOnClick (Sender: TObject);
+Begin
+End;
+
+
+Procedure TProgrammSettingsNotebook.RadioSettingsConfigLevelOnClick (Sender: TObject);
+Begin
+     OkButtonOnClick(Self);
+     MyInfoBox(GetNlsString('MESS_Restart','Restart'));Halt;
+End;
+
+Procedure TProgrammSettingsNotebook.OkbuttonOnClick (Sender: TObject);
+Begin
+     OKButton.ModalResult:=cmOK;
+    IF RadioBasic.Checked Then Application.ProgramIniFile.WriteInteger('Settings','CONFIG_LEVEL',0);
+    IF RadioFull.checked Then Application.ProgramIniFile.WriteInteger('Settings','CONFIG_LEVEL',1);
+
+    Application.ProgramIniFIle.WriteString('Settings','BACKUP_PATH',EditBackup.Text);
+
+    Application.ProgramIniFIle.WriteBool('Settings','DOS_WIN31_RESOLV',CheckBoxDOSWin.CHecked);
+
+    Application.ProgramIniFIle.WriteString('Settings','PROFILE_PATH',EditProfilePath.Text);
+
+    Application.ProgramIniFIle.WriteBool('Settings','SPLASH_SCREEN',cbProgLogo.checked);
+    Application.ProgramIniFIle.WriteBool('Settings','AUTOSTART',cbAutostart.checked);
+
+    Application.ProgramIniFIle.WriteInteger('Settings','SPLASH_SCREEN_DELAYTIME',SpinLogoDelay.Value);
+    TRY
+    Application.ProgramIniFIle.WriteString('Settings','NLS_FILENAME',lbLanguageHelp.items[RadioGroupLanguage.ItemIndex]);
+    Except DisplayException(400);
+    ENd;
+     {IF RadioBasic.checked Then ProgramSettings.ConfigLevel:=0;
+     IF RadioFull.checked Then ProgramSettings.ConfigLevel:=1;
+     ProgramSettings.editBinText:=EditBin.Text;
+     ProgramSettings.EditDosWinETCText:=EditDosETCPath.Text;
+     ProgramSettings.CheckBoxDosWin:=CheckBoxDOSWin.Checked;
+     ProgramSettings.NLSFileName:=lbLanguageHelp.items[RadioGroupLanguage.ItemIndex];
+     ProgramSettings.cbProgLogo:=cbProglogo.checked;
+     ProgramSettings.Autostart:=cbAUtostart.Checked;
+     ProgramSettings.BackupPath:=editBackup.Text;
+     ProgramSettings.ProfilePath:=EditProfilePath.Text;
+     ProgramSettings.ProfileCounter:=SpinProfile.Value;
+     ProgramSettings.BackupCounter:=SpinBackup.Value;
+     ProgramSettings.LogoDelayTime:=SpinLogoDelay.Value;
+     SaveProgIniFile;}
+
+     IF OldProgramLevel<>Application.ProgramIniFile.Readinteger('Settings','CONFIG_LEVEL',0) Then Begin MyInfoBox(GetNLSString('MESSAGE','RESTART'));Halt;End;
+
+End;
+
+Procedure TProgrammSettingsNotebook.RadioGroupProfileOnSetupShow (Sender: TObject);
+Begin
+     //RadioGroupProfile.ItemIndex:=ProgramSettings.
+End;
+
+
+Procedure TProgrammSettingsNotebook.ProgrammSettingsNotebookOnSetupShow (Sender: TObject);
+VAR Rc:Longint;
+Begin
+     //Old_ProgramSettings:=ProgramSettings;
+
+     OLDProgramLevel:=Application.ProgramIniFile.Readinteger('Settings','CONFIG_LEVEL',0);
+
+     RadioGroupLanguage.items.Clear;
+     FindNLSFiles;
+     EditEtc.Text:=GetENV('ETC');
+
+     EditBin.Text:=Application.ProgramIniFile.ReadString('Settings','MPTN_BIN_PATH','');
+     {ProgramSettings.EditBinText;}
+
+     EditIBMCOMPath.Text:=Application.ProgramIniFile.ReadString('Settings','IBMCOM_PATH','');
+     {ProgramSettings.IBMCOMPath;}
+     EditTCPIPBINPath.Text:=Application.ProgramIniFile.ReadString('Settings','TCPIP_BIN_PATH','');
+     {ProgramSettings.TCPIPBINPath;}
+
+     //EditDosETCPath.Text:=Application.ProgramIniFile.ReadString('Settings','DOS_WIN_ETC_PATH','');
+
+     EditProfilePath.Text:=Application.ProgramIniFile.ReadString('Settings','PROFILE_PATH','');
+     {ProgramSettings.ProfilePath;}
+
+     CheckBoxDosWin.Checked:=Application.ProgramIniFile.ReadBool('Settings','DOS_WIN31_RESOLV',FALSE);
+     {ProgramSettings.CheckBoxDosWin;}
+     CheckBoxDosWinOnClick(Self);
+
+     EditBackup.Text:=Application.ProgramIniFile.ReadString('Settings','BACKUP_PATH','');
+     //ProgramSettings.BackupPath;
+     // Ermitteln der Sprach Datei
+     //Rc:=lbLanguageHelp.items.Indexof(ProgramSettings.NLSFileName);
+     RC:=lbLanguageHelp.Items.Indexof(Application.ProgramIniFIle.ReadString('Settings','NLS_FILENAME','-1'));
+     IF RC=-1 Then Begin MyErrorBox('BUG ! Unable to find language filename in ListBox Stringlist !');Halt;End;
+     RadioGroupLanguage.ItemIndex:=Rc;
+
+     RadioGroupLanguageOnCLick(Self);
+
+     {IF ProgramSettings.ConfigLevel=0 Then Begin RadioBasic.Checked:=True;RadioFull.Checked:=FALSE;ENd;
+     IF ProgramSettings.COnfigLevel=1 Then Begin RadioBasic.CHecked:=FALSE;RadioFull.CHecked:=True;End;}
+     IF Application.ProgramIniFile.Readinteger('Settings','CONFIG_LEVEL',0)=1 Then Begin RadioBasic.Checked:=FALSE;RadioFull.Checked:=TRUE;ENd;
+     IF Application.ProgramIniFile.Readinteger('Settings','CONFIG_LEVEL',0)=0 Then Begin RadioBasic.Checked:=TRUE;RadioFull.Checked:=FALSE;ENd;
+
+
+     cbProgLogo.checked:=Application.ProgramIniFile.ReadBool('Settings','SPLASH_SCREEN',TRUE);
+     {cbProgLogo.checked:=ProgramSettings.cbProgLogo;}
+
+     cbAutostart.checked:=Application.ProgramIniFile.ReadBool('Settings','AUTOSTART',TRUE);
+     {cbAutostart.checked:=ProgramSettings.Autostart;}
+
+     SpinBackup.Value:=Application.ProgramIniFile.ReadInteger('Settings','BACKUP_COUNTER',0);
+
+     {SpinBackup.Value:=ProgramSettings.BackupCounter;}
+
+     {SpinProfile.Value:=ProgramSettings.ProfileCOunter;}
+     SpinBackup.Value:=Application.ProgramIniFile.ReadInteger('Settings','PROFILE_COUNTER',0);
+
+   {  SpinLogoDelay.Value:=ProgramSettings.LogoDelayTime;}
+
+   SpinLogoDelay.Value:=Application.ProgramIniFile.ReadInteger('Settings','SPLASH_SCREEN_DELAYTIME',0);
+End;
+
+
+Initialization
+  RegisterClasses ([TProgrammSettingsNotebook, TTabbedNotebook, TButton, TRadioGroup, TLabel
+   , TGroupBox, TEdit, TCheckBox, TListBox, TRadioButton, TSpinEdit]);
+End.
+
+
+{26.10.2006 Umbau auf OS/2 INI File format}

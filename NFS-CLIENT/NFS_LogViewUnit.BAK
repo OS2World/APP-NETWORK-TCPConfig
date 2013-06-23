@@ -1,0 +1,53 @@
+Unit NFS_LogViewUnit;
+
+Interface
+
+Uses
+  Classes, Forms, Graphics, StdCtrls, Buttons,NFS_STDIOERROR,Dialogs,NFS_VAR_Unit,ustring;
+
+Type
+  TFormMountLogView = Class (TForm)
+    Memo1: TMemo;
+    BitBtn1: TBitBtn;
+    Procedure FormMountLogViewOnSetupShow (Sender: TObject);
+  Private
+    {Private Deklarationen hier einfÅgen}
+  Public
+    {ôffentliche Deklarationen hier einfÅgen}
+  Procedure ShowModal(aStringlist:TStringlist); Virtual;
+  End;
+
+Var
+  FormMountLogView: TFormMountLogView;
+
+Implementation
+VAR ListFile:Text;
+
+Procedure TFormMountLogView.ShowModal;
+Begin
+logfilename:=filename;
+inherited.showmodal;
+End;
+
+Procedure TFormMountLogView.FormMountLogViewOnSetupShow (Sender: TObject);
+VAR
+   LogText:String;
+   IOError:Integer;
+Begin
+   {  IF Memo1.Lines.count<>0 Then exit;
+     Memo1.Lines.Clear;
+     System.Assign(ListFile,LogFileName);
+     Reset(ListFile);IOError:=IOResult;IF IOError<>0 Then Begin FileOpenError(IOError,logFileName);Halt;End;
+     While not eof(ListFile) do
+     begin
+        Readln(ListFile,LogText);
+        Memo1.Lines.add(LogText);
+     end;
+     System.Close(ListFile);
+     Erase(ListFile);}
+     //Memo1.Lines:=Output_RpcInfo;
+End;
+
+Initialization
+  RegisterClasses ([TFormMountLogView, TMemo, TBitBtn]);
+End.
